@@ -61,8 +61,9 @@ Antwoord ALLEEN met JSON in dit exacte formaat (geen andere tekst, geen markdown
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.9,
-          maxOutputTokens: 2000,
-          responseMimeType: 'application/json'
+          maxOutputTokens: 4000,
+          responseMimeType: 'application/json',
+          thinkingConfig: { thinkingBudget: 0 }
         }
       })
     });
@@ -77,20 +78,27 @@ Antwoord ALLEEN met JSON in dit exacte formaat (geen andere tekst, geen markdown
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     if (!text) {
+      console.error('Empty Gemini response:', JSON.stringify(data).slice(0, 500));
       return res.status(500).json({ error: 'AI gaf geen antwoord. Probeer opnieuw.' });
     }
 
-    // Parse JSON uit het antwoord (mocht het toch wat extra tekst bevatten)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return res.status(500).json({ error: 'AI gaf een onverwacht antwoord. Probeer opnieuw.' });
-    }
-
+    // Probeer eerst direct JSON parsing (responseMimeType=json geeft pure JSON terug)
     let parsed;
     try {
-      parsed = JSON.parse(jsonMatch[0]);
+      parsed = JSON.parse(text);
     } catch (e) {
-      return res.status(500).json({ error: 'Kon AI-antwoord niet parsen. Probeer opnieuw.' });
+      // Fallback: extract JSON object uit gemengde tekst
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        console.error('No JSON found in response:', text.slice(0, 500));
+        return res.status(500).json({ error: 'AI gaf een onverwacht antwoord. Probeer opnieuw.' });
+      }
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch (e2) {
+        console.error('JSON parse failed:', jsonMatch[0].slice(0, 500));
+        return res.status(500).json({ error: 'Kon AI-antwoord niet parsen. Probeer opnieuw.' });
+      }
     }
 
     return res.status(200).json(parsed);

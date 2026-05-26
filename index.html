@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dating Profile Optimizer - AI Powered</title>
-<meta name="description" content="Transform je dating profiel met AI. Krijg 5 viral-worthy varianten in seconden." />
+<meta name="description" content="Transform je dating profiel met AI. 5 viral-worthy bio's + fotograaf-stijl fotos in seconden." />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -14,23 +14,10 @@
     padding: 20px;
     color: #333;
   }
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  .header {
-    text-align: center;
-    color: white;
-    margin-bottom: 30px;
-  }
-  .header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-  }
-  .header p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-  }
+  .container { max-width: 800px; margin: 0 auto; }
+  .header { text-align: center; color: white; margin-bottom: 30px; }
+  .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+  .header p { font-size: 1.1rem; opacity: 0.9; }
   .card {
     background: white;
     border-radius: 16px;
@@ -38,13 +25,8 @@
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     margin-bottom: 20px;
   }
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #444;
-  }
-  textarea, select, input[type="text"] {
+  label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
+  textarea, select, input[type="text"], input[type="number"] {
     width: 100%;
     padding: 12px;
     border: 2px solid #e0e0e0;
@@ -57,18 +39,9 @@
     outline: none;
     border-color: #667eea;
   }
-  textarea {
-    min-height: 120px;
-    resize: vertical;
-  }
-  .form-row {
-    margin-bottom: 20px;
-  }
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-  }
+  textarea { min-height: 120px; resize: vertical; }
+  .form-row { margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
   @media (max-width: 600px) {
     .form-grid { grid-template-columns: 1fr; }
     .header h1 { font-size: 1.8rem; }
@@ -89,24 +62,30 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102,126,234,0.4);
   }
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
   .result {
     background: #f8f9fb;
     border-left: 4px solid #667eea;
     padding: 20px;
     margin-bottom: 15px;
     border-radius: 8px;
+    position: relative;
   }
-  .result h3 {
-    color: #667eea;
-    margin-bottom: 10px;
-  }
-  .result p {
-    white-space: pre-wrap;
-    line-height: 1.6;
+  .result h3 { color: #667eea; margin-bottom: 10px; }
+  .result p { white-space: pre-wrap; line-height: 1.6; }
+  .result.locked p { filter: blur(6px); user-select: none; }
+  .result.locked::after {
+    content: "🔒 Vergrendeld — schaf premium aan";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(102,126,234,0.95);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
   }
   .copy-btn {
     background: #f0f0f0;
@@ -152,78 +131,371 @@
     font-size: 0.85rem;
     margin-bottom: 10px;
   }
+  .free-tag {
+    display: inline-block;
+    background: #27ae60;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+  .premium-tag {
+    display: inline-block;
+    background: #f39c12;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+  .photo-upload {
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fafafa;
+  }
+  .photo-upload:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+  }
+  .photo-upload input { display: none; }
+  .photo-upload p { color: #666; margin-top: 8px; }
+  .photo-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+  }
+  .photo-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #eee;
+  }
+  .photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .photo-thumb .remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+  }
+  .photo-result {
+    margin-bottom: 20px;
+  }
+  .photo-result h4 {
+    color: #667eea;
+    margin-bottom: 8px;
+  }
+  .photo-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .photo-compare > div {
+    text-align: center;
+  }
+  .photo-compare img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .photo-compare .locked img { filter: blur(12px); }
+  .photo-compare .locked { position: relative; }
+  .photo-compare .locked::after {
+    content: "🔒 Premium";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(102,126,234,0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .photo-compare .label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 6px;
+  }
+  .paywall-card {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #333;
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .paywall-card h2 {
+    margin-bottom: 8px;
+  }
+  .paywall-card .price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 12px 0;
+  }
+  .paywall-card .price small {
+    font-size: 1rem;
+    font-weight: 400;
+    opacity: 0.7;
+  }
+  .paywall-card ul {
+    list-style: none;
+    margin: 16px 0;
+    text-align: left;
+    display: inline-block;
+  }
+  .paywall-card li {
+    padding: 4px 0;
+  }
+  .paywall-card li::before {
+    content: "✓ ";
+    color: #27ae60;
+    font-weight: 700;
+  }
+  .paywall-card button {
+    background: #333;
+    color: white;
+    max-width: 280px;
+    margin: 8px auto 0;
+  }
+  .trial-banner {
+    background: #e8f5e9;
+    border-left: 4px solid #27ae60;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    color: #1b5e20;
+  }
+  .trial-banner.used {
+    background: #fff3e0;
+    border-color: #f57c00;
+    color: #e65100;
+  }
+  .tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: #f0f0f0;
+    color: #666;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  .tab-btn:hover:not(.active) {
+    background: #e0e0e0;
+    transform: none;
+    box-shadow: none;
+  }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <div class="badge">AI-Powered &middot; Powered by Claude</div>
+    <div class="badge">AI-Powered · Bio + Foto enhancement</div>
     <h1>Dating Profile Optimizer</h1>
-    <p>Transform je bio in een match-magnet. 5 viral-worthy varianten in 10 seconden.</p>
+    <p>Transform je bio én foto's in 60 seconden. Eerste keer gratis.</p>
+  </div>
+
+  <div id="trialBanner" class="trial-banner">
+    🎁 Eerste keer is gratis! Daarna €4,99 voor bio + foto's bundle.
   </div>
 
   <div class="card">
-    <div class="form-row">
-      <label for="bio">Je huidige bio</label>
-      <textarea id="bio" placeholder="Plak hier je huidige Tinder/Hinge/Bumble bio..."></textarea>
+    <div class="tab-row">
+      <button class="tab-btn active" data-tab="bio">📝 Bio verbeteren</button>
+      <button class="tab-btn" data-tab="photo">📸 Foto's verbeteren</button>
     </div>
 
-    <div class="form-grid">
+    <!-- BIO TAB -->
+    <div id="bioTab">
       <div class="form-row">
-        <label for="age">Leeftijd</label>
-        <input type="text" id="age" placeholder="bijv. 28" />
+        <label for="bio">Je huidige bio</label>
+        <textarea id="bio" placeholder="Plak hier je huidige Tinder/Hinge/Bumble bio..."></textarea>
       </div>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="age">Leeftijd</label>
+          <input type="text" id="age" placeholder="bijv. 28" />
+        </div>
+        <div class="form-row">
+          <label for="gender">Geslacht</label>
+          <select id="gender">
+            <option value="man">Man</option>
+            <option value="vrouw">Vrouw</option>
+            <option value="non-binair">Non-binair</option>
+          </select>
+        </div>
+      </div>
+
       <div class="form-row">
-        <label for="gender">Geslacht</label>
-        <select id="gender">
-          <option value="man">Man</option>
-          <option value="vrouw">Vrouw</option>
-          <option value="non-binair">Non-binair</option>
+        <label for="interests">Hobbies / interesses</label>
+        <input type="text" id="interests" placeholder="bijv. hardlopen, koken, reizen, koffie" />
+      </div>
+
+      <div class="form-row">
+        <label for="goal">Doel</label>
+        <select id="goal">
+          <option value="serieuze relatie">Serieuze relatie</option>
+          <option value="iets casuals">Iets casuals</option>
+          <option value="vrienden eerst">Vrienden eerst, zien waar het heen gaat</option>
+          <option value="open voor alles">Open voor alles</option>
         </select>
       </div>
+
+      <button id="generateBioBtn">Genereer 5 Bio Varianten</button>
     </div>
 
-    <div class="form-row">
-      <label for="interests">Hobbies / interesses</label>
-      <input type="text" id="interests" placeholder="bijv. hardlopen, koken, reizen, koffie" />
-    </div>
+    <!-- PHOTO TAB -->
+    <div id="photoTab" class="hidden">
+      <label>Upload je foto's (max 3, JPG/PNG, max 5MB per stuk)</label>
+      <label class="photo-upload" for="photoInput">
+        <div style="font-size: 2rem;">📷</div>
+        <p><strong>Klik om foto's te selecteren</strong></p>
+        <p>of sleep ze hierheen</p>
+        <input type="file" id="photoInput" accept="image/jpeg,image/png" multiple />
+      </label>
 
-    <div class="form-row">
-      <label for="goal">Doel</label>
-      <select id="goal">
-        <option value="serieuze relatie">Serieuze relatie</option>
-        <option value="iets casuals">Iets casuals</option>
-        <option value="vrienden eerst">Vrienden eerst, zien waar het heen gaat</option>
-        <option value="open voor alles">Open voor alles</option>
-      </select>
-    </div>
+      <div id="photoPreview" class="photo-preview"></div>
 
-    <button id="generateBtn">Genereer 5 Viral Varianten</button>
+      <button id="enhancePhotoBtn" style="margin-top: 20px;" disabled>
+        Verbeter Foto's (fotograaf-stijl)
+      </button>
+    </div>
   </div>
 
   <div id="output"></div>
 
   <div class="footer">
-    Made with Claude AI &middot; Je gegevens worden niet opgeslagen
+    Made with AI · Je foto's en gegevens worden niet opgeslagen
   </div>
 </div>
 
 <script>
-  const btn = document.getElementById('generateBtn');
-  const output = document.getElementById('output');
+  // === Trial tracking ===
+  const TRIAL_KEY = 'dpo_trial_used_v1';
+  const UNLOCK_KEY = 'dpo_unlock_token';
 
-  btn.addEventListener('click', async () => {
+  function hasUsedTrial() {
+    return localStorage.getItem(TRIAL_KEY) === 'true';
+  }
+
+  function markTrialUsed() {
+    localStorage.setItem(TRIAL_KEY, 'true');
+  }
+
+  function isUnlocked() {
+    const token = localStorage.getItem(UNLOCK_KEY);
+    if (!token) return false;
+    try {
+      const parsed = JSON.parse(token);
+      // Unlock geldig voor 24 uur
+      return parsed.exp && parsed.exp > Date.now();
+    } catch { return false; }
+  }
+
+  function setUnlock(hours = 24) {
+    localStorage.setItem(UNLOCK_KEY, JSON.stringify({
+      exp: Date.now() + hours * 60 * 60 * 1000
+    }));
+  }
+
+  function updateTrialBanner() {
+    const banner = document.getElementById('trialBanner');
+    if (isUnlocked()) {
+      banner.className = 'trial-banner';
+      banner.innerHTML = '✨ Premium actief — onbeperkt gebruik voor 24 uur';
+    } else if (hasUsedTrial()) {
+      banner.className = 'trial-banner used';
+      banner.innerHTML = '⚠️ Gratis trial gebruikt. Resultaten zijn vergrendeld tot je €4,99 betaalt.';
+    } else {
+      banner.className = 'trial-banner';
+      banner.innerHTML = '🎁 Eerste keer is gratis! Daarna €4,99 voor bio + foto\'s bundle.';
+    }
+  }
+
+  // === Check URL voor payment success ===
+  function checkPaymentReturn() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === 'true' && params.get('session_id')) {
+      // Verify met de server
+      fetch('/api/verify-payment?session_id=' + encodeURIComponent(params.get('session_id')))
+        .then(r => r.json())
+        .then(data => {
+          if (data.paid) {
+            setUnlock(24);
+            updateTrialBanner();
+            alert('Betaling gelukt! Je hebt nu 24 uur onbeperkt toegang.');
+            // Schoon URL op
+            window.history.replaceState({}, '', window.location.pathname);
+          }
+        });
+    }
+  }
+
+  // === Tab switching ===
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('bioTab').classList.toggle('hidden', tab !== 'bio');
+      document.getElementById('photoTab').classList.toggle('hidden', tab !== 'photo');
+      document.getElementById('output').innerHTML = '';
+    });
+  });
+
+  // === Bio generation ===
+  document.getElementById('generateBioBtn').addEventListener('click', async () => {
     const bio = document.getElementById('bio').value.trim();
     const age = document.getElementById('age').value.trim();
     const gender = document.getElementById('gender').value;
     const interests = document.getElementById('interests').value.trim();
     const goal = document.getElementById('goal').value;
+    const output = document.getElementById('output');
 
     if (!bio) {
       output.innerHTML = '<div class="error">Vul je huidige bio in om varianten te genereren.</div>';
       return;
     }
 
+    const btn = document.getElementById('generateBioBtn');
     btn.disabled = true;
     btn.textContent = 'Genereren...';
     output.innerHTML = '<div class="loading">AI is aan het werk... dit duurt 10-20 seconden</div>';
@@ -241,29 +513,70 @@
       }
 
       const data = await response.json();
-      renderResults(data.variants || []);
+      const wasUnlocked = isUnlocked() || !hasUsedTrial();
+      if (!hasUsedTrial() && !isUnlocked()) markTrialUsed();
+      renderBioResults(data.variants || [], wasUnlocked);
+      updateTrialBanner();
     } catch (err) {
       output.innerHTML = `<div class="error"><strong>Fout:</strong> ${err.message}</div>`;
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Genereer 5 Viral Varianten';
+      btn.textContent = 'Genereer 5 Bio Varianten';
     }
   });
 
-  function renderResults(variants) {
+  function renderBioResults(variants, unlocked) {
+    const output = document.getElementById('output');
     if (!variants.length) {
       output.innerHTML = '<div class="error">Geen resultaten ontvangen. Probeer opnieuw.</div>';
       return;
     }
-    output.innerHTML = variants.map((v, i) => `
-      <div class="result">
-        <h3>${escapeHtml(v.style || `Variant ${i+1}`)}</h3>
-        <p>${escapeHtml(v.bio || '')}</p>
-        <button class="copy-btn" onclick="copyText(this, ${i})">Kopieer</button>
-      </div>
-    `).join('');
     window._variants = variants;
+    const html = variants.map((v, i) => {
+      // Eerste variant altijd vrij, rest na payment of trial
+      const isLocked = !unlocked && i > 0;
+      return `
+        <div class="result ${isLocked ? 'locked' : ''}">
+          <h3>${escapeHtml(v.style || `Variant ${i+1}`)}${i === 0 ? '<span class="free-tag">PREVIEW</span>' : (isLocked ? '<span class="premium-tag">PREMIUM</span>' : '')}</h3>
+          <p>${escapeHtml(v.bio || '')}</p>
+          ${!isLocked ? `<button class="copy-btn" onclick="copyText(this, ${i})">Kopieer</button>` : ''}
+        </div>
+      `;
+    }).join('');
+    output.innerHTML = html + (unlocked ? '' : renderPaywall());
   }
+
+  function renderPaywall() {
+    return `
+      <div class="paywall-card">
+        <h2>🔓 Ontgrendel alles voor €4,99</h2>
+        <div class="price">€4,99<small> / 24u toegang</small></div>
+        <ul>
+          <li>Alle 5 bio-varianten</li>
+          <li>Foto's verbeteren (fotograaf-stijl)</li>
+          <li>24 uur onbeperkt gebruik</li>
+          <li>Geen abonnement</li>
+        </ul>
+        <button onclick="startCheckout()">Betaal met kaart →</button>
+        <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.7;">Test mode: gebruik kaartnummer 4242 4242 4242 4242</p>
+      </div>
+    `;
+  }
+
+  async function startCheckout() {
+    try {
+      const r = await fetch('/api/create-checkout', { method: 'POST' });
+      const data = await r.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Kon checkout niet starten: ' + (data.error || 'onbekende fout'));
+      }
+    } catch (err) {
+      alert('Fout bij starten van checkout: ' + err.message);
+    }
+  }
+  window.startCheckout = startCheckout;
 
   function copyText(btn, index) {
     const text = window._variants[index].bio;
@@ -273,12 +586,130 @@
       setTimeout(() => { btn.textContent = original; }, 1500);
     });
   }
+  window.copyText = copyText;
 
   function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
+
+  // === Photo upload + enhancement ===
+  const photoInput = document.getElementById('photoInput');
+  const photoPreview = document.getElementById('photoPreview');
+  const enhanceBtn = document.getElementById('enhancePhotoBtn');
+  let uploadedPhotos = []; // {dataUrl, file}
+
+  photoInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files).slice(0, 3 - uploadedPhotos.length);
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} is groter dan 5MB. Sla over.`);
+        continue;
+      }
+      const dataUrl = await readAsDataURL(file);
+      uploadedPhotos.push({ dataUrl, file });
+    }
+    renderPhotos();
+    enhanceBtn.disabled = uploadedPhotos.length === 0;
+    photoInput.value = ''; // reset zodat dezelfde file opnieuw kan
+  });
+
+  function readAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotos() {
+    photoPreview.innerHTML = uploadedPhotos.map((p, i) => `
+      <div class="photo-thumb">
+        <img src="${p.dataUrl}" alt="Photo ${i+1}" />
+        <button class="remove" onclick="removePhoto(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+  window.removePhoto = (i) => {
+    uploadedPhotos.splice(i, 1);
+    renderPhotos();
+    enhanceBtn.disabled = uploadedPhotos.length === 0;
+  };
+
+  enhanceBtn.addEventListener('click', async () => {
+    if (!uploadedPhotos.length) return;
+    const output = document.getElementById('output');
+    enhanceBtn.disabled = true;
+    enhanceBtn.textContent = 'Foto\'s verbeteren...';
+    output.innerHTML = '<div class="loading">AI bewerkt je foto\'s naar fotograaf-niveau... 15-30 sec per foto</div>';
+
+    const results = [];
+    try {
+      for (let i = 0; i < uploadedPhotos.length; i++) {
+        const photo = uploadedPhotos[i];
+        const response = await fetch('/api/enhance-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: photo.dataUrl })
+        });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Server fout: ${response.status}`);
+        }
+        const data = await response.json();
+        results.push({ original: photo.dataUrl, enhanced: data.image });
+      }
+
+      const wasUnlocked = isUnlocked() || !hasUsedTrial();
+      if (!hasUsedTrial() && !isUnlocked()) markTrialUsed();
+      renderPhotoResults(results, wasUnlocked);
+      updateTrialBanner();
+    } catch (err) {
+      output.innerHTML = `<div class="error"><strong>Fout:</strong> ${err.message}</div>`;
+    } finally {
+      enhanceBtn.disabled = false;
+      enhanceBtn.textContent = 'Verbeter Foto\'s (fotograaf-stijl)';
+    }
+  });
+
+  function renderPhotoResults(results, unlocked) {
+    const output = document.getElementById('output');
+    window._photoResults = results;
+    const html = results.map((r, i) => {
+      const isLocked = !unlocked && i > 0; // eerste foto preview, rest premium
+      return `
+        <div class="photo-result">
+          <h4>Foto ${i+1}${i === 0 ? '<span class="free-tag">PREVIEW</span>' : (isLocked ? '<span class="premium-tag">PREMIUM</span>' : '')}</h4>
+          <div class="photo-compare">
+            <div>
+              <img src="${r.original}" alt="Origineel" />
+              <div class="label">Origineel</div>
+            </div>
+            <div class="${isLocked ? 'locked' : ''}">
+              <img src="${r.enhanced}" alt="Verbeterd" />
+              <div class="label">Fotograaf-stijl</div>
+            </div>
+          </div>
+          ${!isLocked ? `<button class="copy-btn" onclick="downloadPhoto(${i})" style="margin-top: 10px;">Download verbeterde foto</button>` : ''}
+        </div>
+      `;
+    }).join('');
+    output.innerHTML = html + (unlocked ? '' : renderPaywall());
+  }
+
+  window.downloadPhoto = (i) => {
+    const r = window._photoResults[i];
+    const link = document.createElement('a');
+    link.href = r.enhanced;
+    link.download = `enhanced-photo-${i+1}.png`;
+    link.click();
+  };
+
+  // === Init ===
+  checkPaymentReturn();
+  updateTrialBanner();
 </script>
 </body>
 </html>

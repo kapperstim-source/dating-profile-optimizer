@@ -1,0 +1,27 @@
+{
+  "name": "dating-profile-optimizer",
+  "version": "1.0.0",
+  "description": "AI-powered dating profile optimizer to get more matches",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "next": "^14.0.0",
+    "lucide-react": "^0.263.1",
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "typescript": "^5.1.3"
+  }
+}

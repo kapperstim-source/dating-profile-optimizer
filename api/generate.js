@@ -1,14 +1,14 @@
 // Vercel Serverless Function — POST /api/generate
-// Calls Anthropic Claude API server-side so the API key never reaches the browser.
+// Uses Google Gemini API (free tier) server-side so the API key never reaches the browser.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY niet ingesteld in Vercel environment variables.' });
+    return res.status(500).json({ error: 'GEMINI_API_KEY niet ingesteld in Vercel environment variables.' });
   }
 
   try {
@@ -41,7 +41,7 @@ Regels:
 - Wees authentiek - niet over-de-top of nep
 - Voeg af en toe een vraag toe die een opening biedt voor een gesprek
 
-Antwoord ALLEEN met JSON in dit exacte formaat (geen andere tekst):
+Antwoord ALLEEN met JSON in dit exacte formaat (geen andere tekst, geen markdown code blocks):
 {
   "variants": [
     {"style": "Grappig & Speels", "bio": "..."},
@@ -52,30 +52,35 @@ Antwoord ALLEEN met JSON in dit exacte formaat (geen andere tekst):
   ]
 }`;
 
-    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 2000,
-        messages: [{ role: 'user', content: prompt }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.9,
+          maxOutputTokens: 2000,
+          responseMimeType: 'application/json'
+        }
       })
     });
 
-    if (!anthropicResponse.ok) {
-      const errText = await anthropicResponse.text();
-      console.error('Anthropic API error:', errText);
-      return res.status(502).json({ error: `Anthropic API gaf een fout (${anthropicResponse.status}). Check je API key en credits.` });
+    if (!geminiResponse.ok) {
+      const errText = await geminiResponse.text();
+      console.error('Gemini API error:', errText);
+      return res.status(502).json({ error: `Gemini API gaf een fout (${geminiResponse.status}). Check je API key en quota op aistudio.google.com.` });
     }
 
-    const data = await anthropicResponse.json();
-    const text = data.content?.[0]?.text || '';
+    const data = await geminiResponse.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-    // Parse JSON uit het antwoord (de model kan extra tekst voor/na de JSON zetten)
+    if (!text) {
+      return res.status(500).json({ error: 'AI gaf geen antwoord. Probeer opnieuw.' });
+    }
+
+    // Parse JSON uit het antwoord (mocht het toch wat extra tekst bevatten)
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return res.status(500).json({ error: 'AI gaf een onverwacht antwoord. Probeer opnieuw.' });

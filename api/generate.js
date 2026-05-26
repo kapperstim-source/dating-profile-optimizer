@@ -56,21 +56,44 @@ Geslacht: ${gender || 'niet opgegeven'}
 Interesses: ${interests || 'niet opgegeven'}
 Doel: ${goal || 'serieuze relatie'}`;
 
-    // Genereer 5 bios PARALLEL (sneller en omzeilt token limit per call)
-    const results = await Promise.allSettled(
-      STYLES.map(style => generateOneBio(basePrompt, style))
-    );
+    // Genereer 5 bios SEQUENTIEEL met kleine delay (Pollinations heeft strict rate limit)
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    const variants = [];
+    let failed = 0;
 
-    const variants = results.map((r, i) => ({
-      style: STYLES[i].name,
-      bio: r.status === 'fulfilled' ? r.value : '(Kon deze variant niet genereren, probeer opnieuw)'
-    }));
+    for (let i = 0; i < STYLES.length; i++) {
+      const style = STYLES[i];
+      try {
+        // Probeer max 2x per style met retry delay
+        let bio = null;
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            bio = await generateOneBio(basePrompt, style);
+            break;
+          } catch (e) {
+            if (attempt === 0) {
+              console.warn(`Style ${style.name} retry (${e.message})`);
+              await sleep(2000);
+            } else {
+              throw e;
+            }
+          }
+        }
+        variants.push({ style: style.name, bio });
+      } catch (e) {
+        console.error(`Style ${style.name} failed:`, e.message);
+        variants.push({
+          style: style.name,
+          bio: '(Kon deze variant niet genereren — probeer opnieuw)'
+        });
+        failed++;
+      }
+      // Korte delay tussen calls om rate limit te respecteren
+      if (i < STYLES.length - 1) await sleep(800);
+    }
 
-    // Als alle bios faalden, return error
-    const allFailed = results.every(r => r.status === 'rejected');
-    if (allFailed) {
-      console.error('All bio generations failed:', results.map(r => r.reason?.message));
-      return res.status(502).json({ error: 'AI service is tijdelijk niet beschikbaar. Probeer over een paar seconden opnieuw.' });
+    if (failed === STYLES.length) {
+      return res.status(502).json({ error: 'AI service is overbelast. Probeer over 30 seconden opnieuw.' });
     }
 
     return res.status(200).json({ variants });

@@ -69,17 +69,26 @@ Antwoord ALLEEN met geldige JSON in dit exacte formaat (geen andere tekst, geen 
 
     // Probeer direct JSON parse
     let parsed;
+    let cleaned = text.trim();
+
+    // Strip markdown code fences indien aanwezig
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '');
+
     try {
-      parsed = JSON.parse(text);
+      parsed = JSON.parse(cleaned);
     } catch (e) {
-      // Fallback: extract JSON
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
+      // Fallback: extract eerste { ... laatste } met balanced braces
+      const start = cleaned.indexOf('{');
+      const end = cleaned.lastIndexOf('}');
+      if (start === -1 || end === -1 || end <= start) {
+        console.error('No JSON braces found:', text.slice(0, 400));
         return res.status(500).json({ error: 'AI gaf een onverwacht antwoord. Probeer opnieuw.' });
       }
+      const extracted = cleaned.slice(start, end + 1);
       try {
-        parsed = JSON.parse(jsonMatch[0]);
+        parsed = JSON.parse(extracted);
       } catch (e2) {
+        console.error('JSON parse failed. Raw text:', text.slice(0, 600));
         return res.status(500).json({ error: 'Kon AI-antwoord niet parsen. Probeer opnieuw.' });
       }
     }

@@ -51,10 +51,9 @@ Retourneer alleen de verbeterde foto.`;
 
     // Probeer meerdere modelnamen tot er één werkt
     const modelCandidates = [
-      'gemini-2.5-flash-image',
-      'gemini-2.5-flash-image-preview',
-      'gemini-2.0-flash-preview-image-generation',
-      'gemini-2.0-flash-exp-image-generation'
+      'gemini-3-pro-image-preview',
+      'gemini-3.1-flash-image-preview',
+      'gemini-2.5-flash-image'
     ];
 
     const requestBody = JSON.stringify({
@@ -66,7 +65,7 @@ Retourneer alleen de verbeterde foto.`;
       }],
       generationConfig: {
         temperature: 0.4,
-        responseModalities: ['IMAGE']
+        responseModalities: ['IMAGE', 'TEXT']
       }
     });
 

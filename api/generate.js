@@ -1,14 +1,9 @@
 // Vercel Serverless Function — POST /api/generate
-// Uses Google Gemini API (free tier) server-side so the API key never reaches the browser.
+// Pollinations.ai text API - 100% gratis, geen API key nodig
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY niet ingesteld in Vercel environment variables.' });
   }
 
   try {
@@ -41,64 +36,56 @@ Regels:
 - Wees authentiek - niet over-de-top of nep
 - Voeg af en toe een vraag toe die een opening biedt voor een gesprek
 
-Antwoord ALLEEN met JSON in dit exacte formaat (geen andere tekst, geen markdown code blocks):
-{
-  "variants": [
-    {"style": "Grappig & Speels", "bio": "..."},
-    {"style": "Mysterieus & Intrigerend", "bio": "..."},
-    {"style": "Direct & Confident", "bio": "..."},
-    {"style": "Warm & Authentiek", "bio": "..."},
-    {"style": "Creatief & Uniek", "bio": "..."}
-  ]
-}`;
+Antwoord ALLEEN met geldige JSON in dit exacte formaat (geen andere tekst, geen markdown):
+{"variants":[{"style":"Grappig & Speels","bio":"..."},{"style":"Mysterieus & Intrigerend","bio":"..."},{"style":"Direct & Confident","bio":"..."},{"style":"Warm & Authentiek","bio":"..."},{"style":"Creatief & Uniek","bio":"..."}]}`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-    const geminiResponse = await fetch(geminiUrl, {
+    // Pollinations Text API (OpenAI-compatible)
+    const pollResponse = await fetch('https://text.pollinations.ai/openai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.9,
-          maxOutputTokens: 4000,
-          responseMimeType: 'application/json',
-          thinkingConfig: { thinkingBudget: 0 }
-        }
+        model: 'openai',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.9,
+        response_format: { type: 'json_object' }
       })
     });
 
-    if (!geminiResponse.ok) {
-      const errText = await geminiResponse.text();
-      console.error('Gemini API error:', errText);
-      return res.status(502).json({ error: `Gemini API gaf een fout (${geminiResponse.status}). Check je API key en quota op aistudio.google.com.` });
+    if (!pollResponse.ok) {
+      const errText = await pollResponse.text();
+      console.error('Pollinations error:', errText.slice(0, 300));
+      return res.status(502).json({
+        error: `AI service fout (${pollResponse.status}). Probeer opnieuw over een paar seconden.`
+      });
     }
 
-    const data = await geminiResponse.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const data = await pollResponse.json();
+    const text = data.choices?.[0]?.message?.content || '';
 
     if (!text) {
-      console.error('Empty Gemini response:', JSON.stringify(data).slice(0, 500));
+      console.error('Empty Pollinations response:', JSON.stringify(data).slice(0, 300));
       return res.status(500).json({ error: 'AI gaf geen antwoord. Probeer opnieuw.' });
     }
 
-    // Probeer eerst direct JSON parsing (responseMimeType=json geeft pure JSON terug)
+    // Probeer direct JSON parse
     let parsed;
     try {
       parsed = JSON.parse(text);
     } catch (e) {
-      // Fallback: extract JSON object uit gemengde tekst
+      // Fallback: extract JSON
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        console.error('No JSON found in response:', text.slice(0, 500));
         return res.status(500).json({ error: 'AI gaf een onverwacht antwoord. Probeer opnieuw.' });
       }
       try {
         parsed = JSON.parse(jsonMatch[0]);
       } catch (e2) {
-        console.error('JSON parse failed:', jsonMatch[0].slice(0, 500));
         return res.status(500).json({ error: 'Kon AI-antwoord niet parsen. Probeer opnieuw.' });
       }
+    }
+
+    if (!parsed.variants || !Array.isArray(parsed.variants)) {
+      return res.status(500).json({ error: 'AI gaf antwoord in onverwacht formaat.' });
     }
 
     return res.status(200).json(parsed);

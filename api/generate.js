@@ -1,10 +1,14 @@
 // Vercel Serverless Function — POST /api/generate
-// Pollinations.ai - 1 call voor 5 bios. Pollinations anonymous tier heeft ~1500 token cap.
-// Door bios kort te houden (60 woorden = ~80 tokens elk), past alles binnen het cap.
+// Gemini 2.5 Flash - snel, betrouwbaar, gratis tier 1500/dag
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'GEMINI_API_KEY niet ingesteld in Vercel environment variables.' });
   }
 
   try {
@@ -14,49 +18,60 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Bio is verplicht (minimaal 3 tekens).' });
     }
 
-    const prompt = `Verbeter deze dating bio. Genereer 5 versies, elke max 55 woorden.
+    const prompt = `Je bent een expert dating profile copywriter. Iemand wil hun dating bio verbeteren.
 
-Input bio: "${bio}"
-Leeftijd: ${age || '?'} | Geslacht: ${gender || '?'} | Interesses: ${interests || '?'} | Doel: ${goal || '?'}
+Huidige bio: "${bio}"
+Leeftijd: ${age || 'niet opgegeven'}
+Geslacht: ${gender || 'niet opgegeven'}
+Interesses: ${interests || 'niet opgegeven'}
+Doel: ${goal || 'niet opgegeven'}
 
-Stijlen:
-1. funny - grappig, speels, zelfspot
-2. mysterious - mysterieus, intrigerend
-3. confident - direct, zelfverzekerd
-4. warm - warm, authentiek
-5. creative - creatief, uniek
+Genereer 5 verschillende verbeterde versies van deze bio. Elke versie moet een andere stijl hebben:
+1. Grappig & speels - met humor en wat zelfspot
+2. Mysterieus & intrigerend - prikkelt nieuwsgierigheid
+3. Direct & confident - duidelijk over wat ze willen
+4. Warm & authentiek - genuine en uitnodigend
+5. Creatief & uniek - opvalt tussen de massa
 
-Antwoord ALLEEN dit JSON formaat, geen extra tekst:
-{"variants":[{"style":"Grappig & Speels","bio":"..."},{"style":"Mysterieus & Intrigerend","bio":"..."},{"style":"Direct & Confident","bio":"..."},{"style":"Warm & Authentiek","bio":"..."},{"style":"Creatief & Uniek","bio":"..."}]}
+Regels:
+- Schrijf in dezelfde taal als de input bio (Nederlands of Engels)
+- Maximaal 150 woorden per variant
+- Geen clichés zoals "ik hou van reizen en lachen"
+- Specifiek en concreet, geen vage uitspraken
+- Wees authentiek - niet over-de-top of nep
+- Voeg af en toe een vraag toe die een opening biedt voor een gesprek
 
-Schrijf in Nederlands. Geen clichés. Specifiek. Max 55 woorden per bio.`;
+Antwoord ALLEEN met geldige JSON in dit exacte formaat:
+{"variants":[{"style":"Grappig & Speels","bio":"..."},{"style":"Mysterieus & Intrigerend","bio":"..."},{"style":"Direct & Confident","bio":"..."},{"style":"Warm & Authentiek","bio":"..."},{"style":"Creatief & Uniek","bio":"..."}]}`;
 
-    const pollResponse = await fetch('https://text.pollinations.ai/openai', {
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'openai',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.9,
-        max_tokens: 1400,
-        response_format: { type: 'json_object' }
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.9,
+          maxOutputTokens: 4000,
+          responseMimeType: 'application/json',
+          thinkingConfig: { thinkingBudget: 0 }
+        }
       })
     });
 
-    if (!pollResponse.ok) {
-      const errText = await pollResponse.text();
-      console.error('Pollinations error:', errText.slice(0, 300));
+    if (!geminiResponse.ok) {
+      const errText = await geminiResponse.text();
+      console.error('Gemini API error:', errText.slice(0, 300));
       return res.status(502).json({
-        error: `AI service fout (${pollResponse.status}). Probeer opnieuw over een paar seconden.`
+        error: `AI service fout (${geminiResponse.status}). Probeer over een paar seconden opnieuw.`
       });
     }
 
-    const data = await pollResponse.json();
-    const text = data.choices?.[0]?.message?.content || '';
-    const finishReason = data.choices?.[0]?.finish_reason;
+    const data = await geminiResponse.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     if (!text) {
-      console.error('Empty Pollinations response. Full:', JSON.stringify(data).slice(0, 400));
       return res.status(500).json({ error: 'AI gaf geen antwoord. Probeer opnieuw.' });
     }
 
@@ -68,19 +83,17 @@ Schrijf in Nederlands. Geen clichés. Specifiek. Max 55 woorden per bio.`;
     } catch (e) {
       const start = cleaned.indexOf('{');
       const end = cleaned.lastIndexOf('}');
-      if (start === -1 || end === -1 || end <= start) {
-        console.error('No JSON braces. Raw:', text.slice(0, 400), 'Finish:', finishReason);
+      if (start === -1 || end === -1) {
         return res.status(500).json({ error: 'AI gaf een onverwacht antwoord. Probeer opnieuw.' });
       }
       try {
         parsed = JSON.parse(cleaned.slice(start, end + 1));
       } catch (e2) {
-        console.error('Parse failed. Raw:', text.slice(0, 500), 'Finish:', finishReason);
         return res.status(500).json({ error: 'Kon AI-antwoord niet parsen. Probeer opnieuw.' });
       }
     }
 
-    if (!parsed.variants || !Array.isArray(parsed.variants) || parsed.variants.length === 0) {
+    if (!parsed.variants || !Array.isArray(parsed.variants)) {
       return res.status(500).json({ error: 'AI gaf antwoord in onverwacht formaat.' });
     }
 

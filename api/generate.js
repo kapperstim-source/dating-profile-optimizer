@@ -47,6 +47,7 @@ Antwoord ALLEEN met geldige JSON in dit exacte formaat (geen andere tekst, geen 
         model: 'openai',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.9,
+        max_tokens: 3000,
         response_format: { type: 'json_object' }
       })
     });

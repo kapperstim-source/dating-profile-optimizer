@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dating Profile Optimizer - AI Powered</title>
+<meta name="description" content="Transform je dating profiel met AI. Krijg 5 viral-worthy varianten in seconden." />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  .header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
+  }
+  textarea, select, input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  textarea:focus, select:focus, input:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  .form-row {
+    margin-bottom: 20px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.8rem; }
+  }
+  button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .result {
+    background: #f8f9fb;
+    border-left: 4px solid #667eea;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+  }
+  .result h3 {
+    color: #667eea;
+    margin-bottom: 10px;
+  }
+  .result p {
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+  .copy-btn {
+    background: #f0f0f0;
+    color: #333;
+    padding: 6px 14px;
+    font-size: 0.9rem;
+    width: auto;
+    margin-top: 10px;
+    border-radius: 6px;
+  }
+  .copy-btn:hover:not(:disabled) {
+    background: #e0e0e0;
+    transform: none;
+    box-shadow: none;
+  }
+  .loading {
+    text-align: center;
+    color: #667eea;
+    font-weight: 600;
+    padding: 20px;
+  }
+  .error {
+    background: #fee;
+    border-left: 4px solid #e74c3c;
+    padding: 15px;
+    border-radius: 8px;
+    color: #c0392b;
+    margin-bottom: 15px;
+  }
+  .footer {
+    text-align: center;
+    color: white;
+    opacity: 0.7;
+    margin-top: 30px;
+    font-size: 0.9rem;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">AI-Powered &middot; Powered by Claude</div>
+    <h1>Dating Profile Optimizer</h1>
+    <p>Transform je bio in een match-magnet. 5 viral-worthy varianten in 10 seconden.</p>
+  </div>
+
+  <div class="card">
+    <div class="form-row">
+      <label for="bio">Je huidige bio</label>
+      <textarea id="bio" placeholder="Plak hier je huidige Tinder/Hinge/Bumble bio..."></textarea>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="age">Leeftijd</label>
+        <input type="text" id="age" placeholder="bijv. 28" />
+      </div>
+      <div class="form-row">
+        <label for="gender">Geslacht</label>
+        <select id="gender">
+          <option value="man">Man</option>
+          <option value="vrouw">Vrouw</option>
+          <option value="non-binair">Non-binair</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="interests">Hobbies / interesses</label>
+      <input type="text" id="interests" placeholder="bijv. hardlopen, koken, reizen, koffie" />
+    </div>
+
+    <div class="form-row">
+      <label for="goal">Doel</label>
+      <select id="goal">
+        <option value="serieuze relatie">Serieuze relatie</option>
+        <option value="iets casuals">Iets casuals</option>
+        <option value="vrienden eerst">Vrienden eerst, zien waar het heen gaat</option>
+        <option value="open voor alles">Open voor alles</option>
+      </select>
+    </div>
+
+    <button id="generateBtn">Genereer 5 Viral Varianten</button>
+  </div>
+
+  <div id="output"></div>
+
+  <div class="footer">
+    Made with Claude AI &middot; Je gegevens worden niet opgeslagen
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById('generateBtn');
+  const output = document.getElementById('output');
+
+  btn.addEventListener('click', async () => {
+    const bio = document.getElementById('bio').value.trim();
+    const age = document.getElementById('age').value.trim();
+    const gender = document.getElementById('gender').value;
+    const interests = document.getElementById('interests').value.trim();
+    const goal = document.getElementById('goal').value;
+
+    if (!bio) {
+      output.innerHTML = '<div class="error">Vul je huidige bio in om varianten te genereren.</div>';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Genereren...';
+    output.innerHTML = '<div class="loading">AI is aan het werk... dit duurt 10-20 seconden</div>';
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bio, age, gender, interests, goal })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server fout: ${response.status}`);
+      }
+
+      const data = await response.json();
+      renderResults(data.variants || []);
+    } catch (err) {
+      output.innerHTML = `<div class="error"><strong>Fout:</strong> ${err.message}</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Genereer 5 Viral Varianten';
+    }
+  });
+
+  function renderResults(variants) {
+    if (!variants.length) {
+      output.innerHTML = '<div class="error">Geen resultaten ontvangen. Probeer opnieuw.</div>';
+      return;
+    }
+    output.innerHTML = variants.map((v, i) => `
+      <div class="result">
+        <h3>${escapeHtml(v.style || `Variant ${i+1}`)}</h3>
+        <p>${escapeHtml(v.bio || '')}</p>
+        <button class="copy-btn" onclick="copyText(this, ${i})">Kopieer</button>
+      </div>
+    `).join('');
+    window._variants = variants;
+  }
+
+  function copyText(btn, index) {
+    const text = window._variants[index].bio;
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'Gekopieerd!';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>

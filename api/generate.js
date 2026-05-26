@@ -1,5 +1,41 @@
 // Vercel Serverless Function — POST /api/generate
-// Pollinations.ai text API - 100% gratis, geen API key nodig
+// Pollinations.ai - 5 parallel calls voor 5 verschillende bio stijlen
+// Pollinations anonymous tier heeft ~1500 token limit per call
+
+const STYLES = [
+  { name: 'Grappig & Speels', tone: 'humoristisch en speels, met self-deprecating humor, geestig, prikkelend' },
+  { name: 'Mysterieus & Intrigerend', tone: 'mysterieus en intrigerend, prikkelt nieuwsgierigheid, beetje cryptisch' },
+  { name: 'Direct & Confident', tone: 'direct, zelfverzekerd, duidelijk over wat je wilt en wie je bent' },
+  { name: 'Warm & Authentiek', tone: 'warm, authentiek, genuine, uitnodigend, oprecht' },
+  { name: 'Creatief & Uniek', tone: 'creatief, uniek, kunstzinnig, opvalt tussen de massa' }
+];
+
+async function generateOneBio(prompt, style) {
+  const fullPrompt = `${prompt}
+
+Schrijf in een ${style.tone} stijl. Max 100 woorden. Geen clichés. Specifiek en concreet. Eindig met een vraag of conversatie-opener. Schrijf in Nederlands. Geef ALLEEN de bio tekst terug, geen labels of uitleg.`;
+
+  const r = await fetch('https://text.pollinations.ai/openai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'openai',
+      messages: [{ role: 'user', content: fullPrompt }],
+      temperature: 0.95,
+      max_tokens: 400
+    })
+  });
+
+  if (!r.ok) {
+    throw new Error(`Pollinations fout (${r.status})`);
+  }
+
+  const data = await r.json();
+  let text = data.choices?.[0]?.message?.content?.trim() || '';
+  // Strip quotes/markdown
+  text = text.replace(/^["']/, '').replace(/["']$/, '').trim();
+  return text;
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,92 +49,31 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Bio is verplicht (minimaal 3 tekens).' });
     }
 
-    const prompt = `Je bent een expert dating profile copywriter. Iemand wil hun dating bio verbeteren.
-
+    const basePrompt = `Schrijf een verbeterde dating profile bio voor iemand met deze info:
 Huidige bio: "${bio}"
 Leeftijd: ${age || 'niet opgegeven'}
 Geslacht: ${gender || 'niet opgegeven'}
 Interesses: ${interests || 'niet opgegeven'}
-Doel: ${goal || 'niet opgegeven'}
+Doel: ${goal || 'serieuze relatie'}`;
 
-Genereer 5 verschillende verbeterde versies van deze bio. Elke versie moet een andere stijl hebben:
-1. Grappig & speels - met humor en wat zelfspot
-2. Mysterieus & intrigerend - prikkelt nieuwsgierigheid
-3. Direct & confident - duidelijk over wat ze willen
-4. Warm & authentiek - genuine en uitnodigend
-5. Creatief & uniek - opvalt tussen de massa
+    // Genereer 5 bios PARALLEL (sneller en omzeilt token limit per call)
+    const results = await Promise.allSettled(
+      STYLES.map(style => generateOneBio(basePrompt, style))
+    );
 
-Regels:
-- Schrijf in dezelfde taal als de input bio (Nederlands of Engels)
-- Maximaal 150 woorden per variant
-- Geen clichés zoals "ik hou van reizen en lachen"
-- Specifiek en concreet, geen vage uitspraken
-- Wees authentiek - niet over-de-top of nep
-- Voeg af en toe een vraag toe die een opening biedt voor een gesprek
+    const variants = results.map((r, i) => ({
+      style: STYLES[i].name,
+      bio: r.status === 'fulfilled' ? r.value : '(Kon deze variant niet genereren, probeer opnieuw)'
+    }));
 
-Antwoord ALLEEN met geldige JSON in dit exacte formaat (geen andere tekst, geen markdown):
-{"variants":[{"style":"Grappig & Speels","bio":"..."},{"style":"Mysterieus & Intrigerend","bio":"..."},{"style":"Direct & Confident","bio":"..."},{"style":"Warm & Authentiek","bio":"..."},{"style":"Creatief & Uniek","bio":"..."}]}`;
-
-    // Pollinations Text API (OpenAI-compatible)
-    const pollResponse = await fetch('https://text.pollinations.ai/openai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'openai',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.9,
-        max_tokens: 3000,
-        response_format: { type: 'json_object' }
-      })
-    });
-
-    if (!pollResponse.ok) {
-      const errText = await pollResponse.text();
-      console.error('Pollinations error:', errText.slice(0, 300));
-      return res.status(502).json({
-        error: `AI service fout (${pollResponse.status}). Probeer opnieuw over een paar seconden.`
-      });
+    // Als alle bios faalden, return error
+    const allFailed = results.every(r => r.status === 'rejected');
+    if (allFailed) {
+      console.error('All bio generations failed:', results.map(r => r.reason?.message));
+      return res.status(502).json({ error: 'AI service is tijdelijk niet beschikbaar. Probeer over een paar seconden opnieuw.' });
     }
 
-    const data = await pollResponse.json();
-    const text = data.choices?.[0]?.message?.content || '';
-
-    if (!text) {
-      console.error('Empty Pollinations response:', JSON.stringify(data).slice(0, 300));
-      return res.status(500).json({ error: 'AI gaf geen antwoord. Probeer opnieuw.' });
-    }
-
-    // Probeer direct JSON parse
-    let parsed;
-    let cleaned = text.trim();
-
-    // Strip markdown code fences indien aanwezig
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '');
-
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (e) {
-      // Fallback: extract eerste { ... laatste } met balanced braces
-      const start = cleaned.indexOf('{');
-      const end = cleaned.lastIndexOf('}');
-      if (start === -1 || end === -1 || end <= start) {
-        console.error('No JSON braces found:', text.slice(0, 400));
-        return res.status(500).json({ error: 'AI gaf een onverwacht antwoord. Probeer opnieuw.' });
-      }
-      const extracted = cleaned.slice(start, end + 1);
-      try {
-        parsed = JSON.parse(extracted);
-      } catch (e2) {
-        console.error('JSON parse failed. Raw text:', text.slice(0, 600));
-        return res.status(500).json({ error: 'Kon AI-antwoord niet parsen. Probeer opnieuw.' });
-      }
-    }
-
-    if (!parsed.variants || !Array.isArray(parsed.variants)) {
-      return res.status(500).json({ error: 'AI gaf antwoord in onverwacht formaat.' });
-    }
-
-    return res.status(200).json(parsed);
+    return res.status(200).json({ variants });
   } catch (err) {
     console.error('Server error:', err);
     return res.status(500).json({ error: err.message || 'Onbekende serverfout' });

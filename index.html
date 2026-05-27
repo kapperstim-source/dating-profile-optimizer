@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dating Profile Optimizer - AI Powered</title>
-<meta name="description" content="Transform je dating bio met AI. 5 viral-worthy varianten in 10 seconden." />
+<meta name="description" content="Transform je dating bio én foto's met AI. 5 viral-worthy varianten + fotograaf-stijl foto's in seconden." />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -36,7 +36,7 @@
     transition: border-color 0.2s;
   }
   textarea:focus, select:focus, input:focus { outline: none; border-color: #667eea; }
-  textarea { min-height: 120px; resize: vertical; }
+  textarea { min-height: 100px; resize: vertical; }
   .form-row { margin-bottom: 20px; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
   @media (max-width: 600px) {
@@ -105,13 +105,7 @@
     color: #c0392b;
     margin-bottom: 15px;
   }
-  .footer {
-    text-align: center;
-    color: white;
-    opacity: 0.7;
-    margin-top: 30px;
-    font-size: 0.9rem;
-  }
+  .footer { text-align: center; color: white; opacity: 0.7; margin-top: 30px; font-size: 0.9rem; }
   .badge {
     display: inline-block;
     background: rgba(255,255,255,0.2);
@@ -121,26 +115,8 @@
     font-size: 0.85rem;
     margin-bottom: 10px;
   }
-  .free-tag {
-    display: inline-block;
-    background: #27ae60;
-    color: white;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-left: 8px;
-  }
-  .premium-tag {
-    display: inline-block;
-    background: #f39c12;
-    color: white;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-left: 8px;
-  }
+  .free-tag { display: inline-block; background: #27ae60; color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-left: 8px; }
+  .premium-tag { display: inline-block; background: #f39c12; color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-left: 8px; }
   .paywall-card {
     background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
     color: #333;
@@ -150,30 +126,12 @@
     margin-bottom: 20px;
   }
   .paywall-card h2 { margin-bottom: 8px; }
-  .paywall-card .price {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 12px 0;
-  }
-  .paywall-card .price small {
-    font-size: 1rem;
-    font-weight: 400;
-    opacity: 0.7;
-  }
-  .paywall-card ul {
-    list-style: none;
-    margin: 16px 0;
-    text-align: left;
-    display: inline-block;
-  }
+  .paywall-card .price { font-size: 2.5rem; font-weight: 700; margin: 12px 0; }
+  .paywall-card .price small { font-size: 1rem; font-weight: 400; opacity: 0.7; }
+  .paywall-card ul { list-style: none; margin: 16px 0; text-align: left; display: inline-block; }
   .paywall-card li { padding: 4px 0; }
   .paywall-card li::before { content: "✓ "; color: #27ae60; font-weight: 700; }
-  .paywall-card button {
-    background: #333;
-    color: white;
-    max-width: 280px;
-    margin: 8px auto 0;
-  }
+  .paywall-card button { background: #333; color: white; max-width: 280px; margin: 8px auto 0; }
   .trial-banner {
     background: #e8f5e9;
     border-left: 4px solid #27ae60;
@@ -183,68 +141,188 @@
     font-size: 0.95rem;
     color: #1b5e20;
   }
-  .trial-banner.used {
-    background: #fff3e0;
-    border-color: #f57c00;
-    color: #e65100;
+  .trial-banner.used { background: #fff3e0; border-color: #f57c00; color: #e65100; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab-btn {
+    flex: 1;
+    background: #f0f0f0;
+    color: #666;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
   }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  .tab-btn:hover:not(.active) { background: #e0e0e0; transform: none; box-shadow: none; }
+  .hidden { display: none !important; }
+  .info-box {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: #0d47a1;
+  }
+  .photo-upload {
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fafafa;
+    margin-bottom: 16px;
+  }
+  .photo-upload:hover { border-color: #667eea; background: #f0f4ff; }
+  .photo-upload input { display: none; }
+  .photo-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .photo-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #eee;
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-thumb .remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+  }
+  .photo-result { margin-bottom: 20px; }
+  .photo-result h4 { color: #667eea; margin-bottom: 8px; }
+  .photo-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .photo-compare > div { text-align: center; }
+  .photo-compare img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .photo-compare .locked img { filter: blur(12px); }
+  .photo-compare .locked { position: relative; }
+  .photo-compare .locked::after {
+    content: "🔒 Premium";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(102,126,234,0.95);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .photo-compare .label { font-size: 0.85rem; color: #666; margin-top: 6px; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <div class="badge">AI-Powered · Gemini</div>
+    <div class="badge">AI-Powered · Bio + Foto</div>
     <h1>Dating Profile Optimizer</h1>
-    <p>Transform je bio in een match-magnet. 5 viral-worthy varianten in 10 seconden.</p>
+    <p>Transform je bio én foto's met AI. Eerste keer gratis.</p>
   </div>
 
   <div id="trialBanner" class="trial-banner">
-    🎁 Eerste keer is gratis! Daarna €4,99 voor alle varianten + 24u premium.
+    🎁 Eerste keer is gratis! Daarna €4,99 voor alle bio's + foto's.
   </div>
 
   <div class="card">
-    <div class="form-row">
-      <label for="bio">Je huidige bio</label>
-      <textarea id="bio" placeholder="Plak hier je huidige Tinder/Hinge/Bumble bio of beschrijf jezelf kort..."></textarea>
+    <div class="tab-row">
+      <button class="tab-btn active" data-tab="bio">📝 Bio verbeteren</button>
+      <button class="tab-btn" data-tab="photo">📸 Foto's verbeteren</button>
     </div>
 
-    <div class="form-grid">
+    <!-- BIO TAB -->
+    <div id="bioTab">
       <div class="form-row">
-        <label for="age">Leeftijd</label>
-        <input type="text" id="age" placeholder="bijv. 28" />
+        <label for="bio">Je huidige bio</label>
+        <textarea id="bio" placeholder="Plak hier je huidige Tinder/Hinge/Bumble bio..."></textarea>
       </div>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="age">Leeftijd</label>
+          <input type="text" id="age" placeholder="bijv. 28" />
+        </div>
+        <div class="form-row">
+          <label for="gender">Geslacht</label>
+          <select id="gender">
+            <option value="man">Man</option>
+            <option value="vrouw">Vrouw</option>
+            <option value="non-binair">Non-binair</option>
+          </select>
+        </div>
+      </div>
+
       <div class="form-row">
-        <label for="gender">Geslacht</label>
-        <select id="gender">
-          <option value="man">Man</option>
-          <option value="vrouw">Vrouw</option>
-          <option value="non-binair">Non-binair</option>
+        <label for="interests">Hobbies / interesses</label>
+        <input type="text" id="interests" placeholder="bijv. hardlopen, koken, reizen, koffie" />
+      </div>
+
+      <div class="form-row">
+        <label for="goal">Doel</label>
+        <select id="goal">
+          <option value="serieuze relatie">Serieuze relatie</option>
+          <option value="iets casuals">Iets casuals</option>
+          <option value="vrienden eerst">Vrienden eerst, zien waar het heen gaat</option>
+          <option value="open voor alles">Open voor alles</option>
         </select>
       </div>
+
+      <button id="generateBioBtn">Genereer 5 Bio Varianten</button>
     </div>
 
-    <div class="form-row">
-      <label for="interests">Hobbies / interesses</label>
-      <input type="text" id="interests" placeholder="bijv. hardlopen, koken, reizen, koffie" />
-    </div>
+    <!-- PHOTO TAB -->
+    <div id="photoTab" class="hidden">
+      <div class="info-box">
+        💡 Upload je foto's. AI verbetert belichting, scherpte en kleur naar fotograaf-niveau. Behoudt 100% je gezicht & identiteit.<br>
+        <small style="opacity: 0.8;">⚠️ Beperking: gratis Gemini quota is ~10-20 foto's per dag. Bij overschrijding probeer morgen opnieuw.</small>
+      </div>
 
-    <div class="form-row">
-      <label for="goal">Doel</label>
-      <select id="goal">
-        <option value="serieuze relatie">Serieuze relatie</option>
-        <option value="iets casuals">Iets casuals</option>
-        <option value="vrienden eerst">Vrienden eerst, zien waar het heen gaat</option>
-        <option value="open voor alles">Open voor alles</option>
-      </select>
-    </div>
+      <label class="photo-upload" for="photoInput">
+        <div style="font-size: 2rem;">📷</div>
+        <p><strong>Klik om foto's te selecteren</strong></p>
+        <p>JPG/PNG, max 3 foto's, max 5MB elk</p>
+        <input type="file" id="photoInput" accept="image/jpeg,image/png" multiple />
+      </label>
 
-    <button id="generateBtn">Genereer 5 Viral Varianten</button>
+      <div id="photoPreview" class="photo-preview"></div>
+
+      <button id="enhancePhotoBtn" disabled>
+        Verbeter Foto's (fotograaf-stijl)
+      </button>
+    </div>
   </div>
 
   <div id="output"></div>
 
   <div class="footer">
-    Powered by AI · Je gegevens worden niet opgeslagen
+    Powered by Gemini AI · Je gegevens worden niet opgeslagen
   </div>
 </div>
 
@@ -273,10 +351,10 @@
       banner.innerHTML = '✨ Premium actief — onbeperkt gebruik voor 24 uur';
     } else if (hasUsedTrial()) {
       banner.className = 'trial-banner used';
-      banner.innerHTML = '⚠️ Gratis trial gebruikt. Alle varianten zijn vergrendeld tot je €4,99 betaalt.';
+      banner.innerHTML = '⚠️ Gratis trial gebruikt. Resultaten zijn vergrendeld tot je €4,99 betaalt.';
     } else {
       banner.className = 'trial-banner';
-      banner.innerHTML = '🎁 Eerste keer is gratis! Daarna €4,99 voor alle varianten + 24u premium.';
+      banner.innerHTML = '🎁 Eerste keer is gratis! Daarna €4,99 voor alle bio\'s + foto\'s.';
     }
   }
 
@@ -296,7 +374,19 @@
     }
   }
 
-  document.getElementById('generateBtn').addEventListener('click', async () => {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('bioTab').classList.toggle('hidden', tab !== 'bio');
+      document.getElementById('photoTab').classList.toggle('hidden', tab !== 'photo');
+      document.getElementById('output').innerHTML = '';
+    });
+  });
+
+  // === Bio generation ===
+  document.getElementById('generateBioBtn').addEventListener('click', async () => {
     const bio = document.getElementById('bio').value.trim();
     const age = document.getElementById('age').value.trim();
     const gender = document.getElementById('gender').value;
@@ -309,7 +399,7 @@
       return;
     }
 
-    const btn = document.getElementById('generateBtn');
+    const btn = document.getElementById('generateBioBtn');
     btn.disabled = true;
     btn.textContent = 'Genereren...';
     output.innerHTML = '<div class="loading">AI is aan het werk... 5-10 sec</div>';
@@ -327,17 +417,17 @@
       const data = await response.json();
       const wasUnlocked = isUnlocked() || !hasUsedTrial();
       if (!hasUsedTrial() && !isUnlocked()) markTrialUsed();
-      renderResults(data.variants || [], wasUnlocked);
+      renderBioResults(data.variants || [], wasUnlocked);
       updateTrialBanner();
     } catch (err) {
       output.innerHTML = `<div class="error"><strong>Fout:</strong> ${err.message}</div>`;
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Genereer 5 Viral Varianten';
+      btn.textContent = 'Genereer 5 Bio Varianten';
     }
   });
 
-  function renderResults(variants, unlocked) {
+  function renderBioResults(variants, unlocked) {
     const output = document.getElementById('output');
     if (!variants.length) {
       output.innerHTML = '<div class="error">Geen resultaten ontvangen. Probeer opnieuw.</div>';
@@ -360,12 +450,13 @@
   function renderPaywall() {
     return `
       <div class="paywall-card">
-        <h2>🔓 Ontgrendel alle 5 varianten</h2>
+        <h2>🔓 Ontgrendel alles voor €4,99</h2>
         <div class="price">€4,99<small> / 24u toegang</small></div>
         <ul>
-          <li>Alle 5 unieke bio-varianten</li>
-          <li>24 uur onbeperkt nieuwe bios genereren</li>
-          <li>Geen abonnement, eenmalig</li>
+          <li>Alle 5 bio-varianten</li>
+          <li>Alle verbeterde foto's</li>
+          <li>24 uur onbeperkt gebruik</li>
+          <li>Geen abonnement</li>
         </ul>
         <button onclick="startCheckout()">Betaal met kaart →</button>
         <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.7;">Test mode: gebruik kaartnummer 4242 4242 4242 4242</p>
@@ -400,6 +491,128 @@
     div.textContent = text;
     return div.innerHTML;
   }
+
+  // === Photo upload + enhancement ===
+  const photoInput = document.getElementById('photoInput');
+  const photoPreview = document.getElementById('photoPreview');
+  const enhanceBtn = document.getElementById('enhancePhotoBtn');
+  let uploadedPhotos = [];
+
+  photoInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files).slice(0, 3 - uploadedPhotos.length);
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} is groter dan 5MB. Sla over.`);
+        continue;
+      }
+      const dataUrl = await readAsDataURL(file);
+      uploadedPhotos.push({ dataUrl, name: file.name });
+    }
+    renderPhotos();
+    enhanceBtn.disabled = uploadedPhotos.length === 0;
+    photoInput.value = '';
+  });
+
+  function readAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotos() {
+    photoPreview.innerHTML = uploadedPhotos.map((p, i) => `
+      <div class="photo-thumb">
+        <img src="${p.dataUrl}" alt="Photo ${i+1}" />
+        <button class="remove" onclick="removePhoto(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+  window.removePhoto = (i) => {
+    uploadedPhotos.splice(i, 1);
+    renderPhotos();
+    enhanceBtn.disabled = uploadedPhotos.length === 0;
+  };
+
+  enhanceBtn.addEventListener('click', async () => {
+    if (!uploadedPhotos.length) return;
+    const output = document.getElementById('output');
+    enhanceBtn.disabled = true;
+    enhanceBtn.textContent = 'Foto\'s verbeteren...';
+    output.innerHTML = '<div class="loading">AI bewerkt je foto\'s naar fotograaf-niveau... 15-30 sec per foto</div>';
+
+    const results = [];
+    try {
+      for (let i = 0; i < uploadedPhotos.length; i++) {
+        const photo = uploadedPhotos[i];
+        const response = await fetch('/api/enhance-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: photo.dataUrl })
+        });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Server fout: ${response.status}`);
+        }
+        const data = await response.json();
+        results.push({ original: photo.dataUrl, enhanced: data.image });
+      }
+
+      const wasUnlocked = isUnlocked() || !hasUsedTrial();
+      if (!hasUsedTrial() && !isUnlocked()) markTrialUsed();
+      renderPhotoResults(results, wasUnlocked);
+      updateTrialBanner();
+    } catch (err) {
+      if (results.length > 0) {
+        const wasUnlocked = isUnlocked() || !hasUsedTrial();
+        renderPhotoResults(results, wasUnlocked);
+        const errDiv = document.createElement('div');
+        errDiv.className = 'error';
+        errDiv.innerHTML = `<strong>Stop bij foto ${results.length + 1}:</strong> ${err.message}`;
+        output.prepend(errDiv);
+      } else {
+        output.innerHTML = `<div class="error"><strong>Fout:</strong> ${err.message}<br><small>Gratis Gemini quota voor foto's is ~10-20 per dag. Probeer morgen opnieuw of activeer billing op aistudio.google.com.</small></div>`;
+      }
+    } finally {
+      enhanceBtn.disabled = false;
+      enhanceBtn.textContent = 'Verbeter Foto\'s (fotograaf-stijl)';
+    }
+  });
+
+  function renderPhotoResults(results, unlocked) {
+    const output = document.getElementById('output');
+    window._photoResults = results;
+    const html = results.map((r, i) => {
+      const isLocked = !unlocked && i > 0;
+      return `
+        <div class="photo-result">
+          <h4>Foto ${i+1}${i === 0 ? '<span class="free-tag">PREVIEW</span>' : (isLocked ? '<span class="premium-tag">PREMIUM</span>' : '')}</h4>
+          <div class="photo-compare">
+            <div>
+              <img src="${r.original}" alt="Origineel" />
+              <div class="label">Origineel</div>
+            </div>
+            <div class="${isLocked ? 'locked' : ''}">
+              <img src="${r.enhanced}" alt="Verbeterd" />
+              <div class="label">Fotograaf-stijl</div>
+            </div>
+          </div>
+          ${!isLocked ? `<button class="copy-btn" onclick="downloadPhoto(${i})" style="margin-top: 10px;">Download verbeterde foto</button>` : ''}
+        </div>
+      `;
+    }).join('');
+    output.innerHTML = html + (unlocked ? '' : renderPaywall());
+  }
+
+  window.downloadPhoto = (i) => {
+    const r = window._photoResults[i];
+    const link = document.createElement('a');
+    link.href = r.enhanced;
+    link.download = `enhanced-photo-${i+1}.png`;
+    link.click();
+  };
 
   checkPaymentReturn();
   updateTrialBanner();
